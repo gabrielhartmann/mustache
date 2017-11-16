@@ -723,8 +723,16 @@ func ParseStringPartials(data string, partials PartialProvider) (*Template, erro
 }
 
 func ParseStringPartialsRaw(data string, partials PartialProvider, forceRaw bool) (*Template, error) {
-	cwd := os.Getenv("CWD")
-	tmpl := Template{data, "{{", "}}", 0, 1, cwd, []interface{}{}, forceRaw, partials}
+	cwd, err := os.Getwd()
+	if err != nil {
+		return nil, err
+	}
+
+	return ParseStringPartialsRawInDir(data, cwd, partials, forceRaw)
+}
+
+func ParseStringPartialsRawInDir(data string, dir string, partials PartialProvider, forceRaw bool) (*Template, error) {
+	tmpl := Template{data, "{{", "}}", 0, 1, dir, []interface{}{}, forceRaw, partials}
 	err := tmpl.parse()
 
 	if err != nil {
